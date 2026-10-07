@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grade Horária - Secretaria Escolar Digital</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #333; background: #f1f1f1; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* Cabeçalho */
+  .topbar { background: #fff; display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 16px; border-bottom: 1px solid #ddd; }
+  .logo small { display: block; font-size: 10px; color: #555; }
+  .logo b { font-size: 22px; color: #1b5e9b; }
+  .user { text-align: right; font-size: 10px; color: #555; }
+  .user a { color: #2a7ab8; text-decoration: none; }
+  .quick { margin-top: 4px; display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
+  .quick span { background: #3a8fd0; color: #fff; border-radius: 3px; padding: 3px 8px; font-size: 10px; }
+  .layout { display: flex; align-items: flex-start; }
+  .sidebar { width: 150px; flex: none; padding: 6px; }
+  .sidebar input { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 3px; font-size: 10px; margin-bottom: 8px; }
+  .sidebar div.item { background: #3a8fd0; color: #fff; padding: 7px 6px; font-size: 9px; border-bottom: 1px solid #fff; display: flex; justify-content: space-between; }
+  main { flex: 1; padding: 6px 12px 30px; min-width: 0; }
+  .crumb { font-size: 9px; color: #2a7ab8; margin-bottom: 6px; }
+  h1 { margin: 6px 0 10px; font-size: 20px; color: #3a8fd0; font-weight: bold; }
+  .card { background: #fff; border: 1px solid #e3e3e3; border-radius: 3px; padding: 10px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+
+  /* Tarjas amarelas (tom mais claro) */
+  .banner { background: #ffe680; border: 1px solid #f2cf4d; border-radius: 3px; padding: 9px 12px; font-weight: bold; font-size: 11px; line-height: 1.5; color: #333; }
+  .banner + .banner { margin-top: 0; }
+
+  /* Filtros */
+  .hidden { display: none !important; }
+  form.filters { width: 560px; max-width: 100%; margin: 14px auto 6px; }
+  .row { display: flex; align-items: center; margin-bottom: 9px; }
+  .row label { width: 220px; text-align: right; font-weight: bold; padding-right: 8px; font-size: 11px; }
+  .row select { width: 250px; height: 26px; border: 1px solid #ccc; border-radius: 3px; background: #fff; font-size: 11px; padding: 0 4px; }
+  .row.invalid select { border: 2px solid #d9261c; background: #fff6f5; }
+  .row .err { display: none; margin-left: 8px; color: #d9261c; font-weight: bold; font-size: 11px; }
+  .row.invalid .err { display: inline; }
+  .btns { display: flex; justify-content: flex-end; gap: 6px; margin-top: 14px; }
+  .btn { display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; border-radius: 3px; padding: 5px 10px; font-size: 11px; color: #fff; cursor: pointer; background: #3a8fd0; }
+  .btn:hover { filter: brightness(.92); }
+  .btn svg { width: 13px; height: 13px; }
+  .btn.primary { background: #1f5f99; }
+  .btn.info { background: #3a8fd0; }
+  .btn.success { background: #2e9e5b; }
+  .btn.light { background: #fff; color: #333; border-color: #bbb; }
+  .btn.danger { background: #c9302c; }
+
+  /* Disciplinas */
+  .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px 6px; margin-top: 12px; }
+  .chip { border: 1px solid transparent; border-radius: 3px; padding: 4px 7px; font-size: 9px; font-weight: bold; color: #fff; background: #999; cursor: pointer; user-select: none; min-height: 34px; }
+  .chip .l1 { display: flex; justify-content: space-between; gap: 6px; align-items: center; text-transform: uppercase; }
+  .chip .cnt { background: rgba(255,255,255,.28); border-radius: 8px; padding: 0 6px; min-width: 18px; text-align: center; }
+  .chip .prof { font-weight: normal; font-size: 9px; margin-top: 2px; text-transform: none; opacity: .95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip.zero { background: #ececec; color: #9a9a9a; border-color: #e0e0e0; cursor: default; }
+  .chip.zero .cnt { background: #dcdcdc; }
+  .chip.selected { outline: 3px solid #1f5f99; outline-offset: 1px; }
+
+  /* Dados da escola e grade */
+  .school { margin: 8px 0 10px 8px; line-height: 1.7; font-size: 11px; }
+  .school b { font-weight: bold; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .toolbar .grp { display: flex; gap: 4px; }
+  .btn.sq { padding: 5px 7px; }
+  table.grade { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9px; }
+  table.grade th { background: #3a8fd0; color: #fff; padding: 6px; border: 1px solid #fff; font-size: 10px; }
+  table.grade td { border: 1px solid #fff; padding: 3px; height: 38px; vertical-align: middle; text-align: center; }
+  table.grade td.hora { background: #d6e6f5; font-weight: bold; width: 95px; font-size: 9px; }
+  table.grade td.slot { background: #f3f7fb; }
+  table.grade td.slot.empty.armed:hover { background: #cfe6fb; cursor: pointer; outline: 2px dashed #3a8fd0; outline-offset: -3px; }
+  table.grade td.off { background: #d4d4d4; }
+  table.grade tr.interval td.hora { background: #e9e9e9; font-weight: normal; }
+  table.grade tr.interval td.off { background: #d4d4d4; }
+  .gcard { color: #fff; font-weight: bold; border-radius: 3px; padding: 4px 3px; cursor: pointer; user-select: none; line-height: 1.2; text-transform: uppercase; }
+  .gcard small { display: block; font-weight: normal; text-transform: none; font-size: 8.5px; margin-top: 2px; opacity: .95; }
+  .actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 10px; }
+  .dirty { color: #b26a00; font-weight: bold; font-size: 11px; }
+  #cardGrade.full { position: fixed; inset: 0; z-index: 50; margin: 0; overflow: auto; border-radius: 0; }
+
+  /* Modal e aviso */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .modal { background: #fff; border-radius: 4px; width: 460px; max-width: 92vw; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+  .modal h3 { margin: 0; padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #e5e5e5; }
+  .modal p { margin: 0; padding: 16px; font-size: 13px; line-height: 1.5; }
+  .modal .foot { padding: 10px 16px; border-top: 1px solid #e5e5e5; display: flex; justify-content: flex-end; gap: 6px; }
+  .toast { position: fixed; right: 20px; bottom: 20px; background: #2e9e5b; color: #fff; padding: 10px 16px; border-radius: 4px; font-size: 12px; z-index: 200; box-shadow: 0 3px 10px rgba(0,0,0,.3); }
+
+  @media print {
+    .topbar, .sidebar, .crumb, h1, #cardFiltro, #cardDisc, .toolbar .grp, .actions { display: none !important; }
+    body, .layout, main { background: #fff; padding: 0; }
+    .card { border: 0; box-shadow: none; }
+    #cardGrade.full { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+    <symbol id="i-import" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
+    <symbol id="i-excel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></symbol>
+    <symbol id="i-pdf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <div class="logo"><small>SECRETARIA DA <b style="font-size:10px">EDUCAÇÃO</b> DO ESTADO DE SÃO PAULO</small><b>Secretaria Escolar Digital</b></div>
+  <div class="user">
+    <a href="#">OG, ROBERTA TEIXEIRA COUTO</a><br>Você está logado como: SUCON - COEGD - COGDP
+    <div class="quick"><span>Tutorial</span><span>Meus Questionários</span><span>Meus E-mails</span><span>Dúvidas</span><span>Perfil</span><span>Redefinir Senha dos E-mails Institucionais</span><span>Sair</span></div>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><input placeholder="Acesso rápido"></aside>
+  <main>
+    <div class="crumb">Início » Gestão Escolar » Grade Horária » Cadastrar Grade Horária</div>
+    <h1>Grade Horária</h1>
+
+    <!-- Filtros -->
+    <section class="card" id="cardFiltro">
+      <div class="banner hidden" id="bannerPerfil"></div>
+      <form class="filters" id="form" novalidate></form>
+      <div class="btns">
+        <button type="button" class="btn info" id="btnImportar"><svg><use href="#i-import"/></svg>Importar Urânia</button>
+        <button type="button" class="btn primary" id="btnPesquisar"><svg><use href="#i-search"/></svg>Pesquisar</button>
+        <button type="button" class="btn info" id="btnLimpar"><svg><use href="#i-reset"/></svg>Limpar</button>
+      </div>
+    </section>
+
+    <!-- Disciplinas -->
+    <section class="card hidden" id="cardDisc">
+      <div class="banner">Selecione a disciplina e clique no horário correspondente.<br>Para excluir a disciplina da grade de horários, dê um duplo clique sobre a disciplina.</div>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <!-- Grade -->
+    <section class="card hidden" id="cardGrade">
+      <div class="school" id="school"></div>
+      <div class="toolbar">
+        <div class="grp"><button class="btn info sq" id="btnExpand" title="Expandir a tela"><svg><use href="#i-expand"/></svg></button></div>
+        <div class="grp">
+          <button class="btn info" id="btnPrint"><svg><use href="#i-print"/></svg>Imprimir</button>
+          <button class="btn info" id="btnExcel"><svg><use href="#i-excel"/></svg>Gerar Excel</button>
+          <button class="btn info" id="btnPdf"><svg><use href="#i-pdf"/></svg>Gerar PDF</button>
+          <button class="btn success" id="btnCompartilhar"><svg><use href="#i-share"/></svg>Compartilhar</button>
+        </div>
+      </div>
+      <table class="grade">
+        <thead><tr><th>Horário</th><th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sab</th></tr></thead>
+        <tbody id="gradeBody"></tbody>
+      </table>
+      <div class="actions">
+        <span class="dirty hidden" id="dirty">Alterações não salvas</span>
+        <button class="btn info" id="btnLimparGrade"><svg><use href="#i-trash"/></svg>Limpar Grade</button>
+        <button class="btn info" id="btnSalvar"><svg><use href="#i-save"/></svg>Salvar</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Dados ---------- */
+  var FILTERS = [
+    { id: 'por',    label: 'Pesquisar Por:',                    opts: ['Filtros'] },
+    { id: 'ano',    label: 'Ano Letivo:',                       opts: ['2026', '2025'] },
+    { id: 'rede',   label: 'Rede de Ensino:',                   opts: ['ESTADUAL - SE'] },
+    { id: 'ure',    label: 'Unidade Regional de Ensino (URE):', opts: ['ADAMANTINA'] },
+    { id: 'escola', label: 'Escola:',                           opts: ['HELEN KELLER - 30808'] },
+    { id: 'tipo',   label: 'Tipo de Ensino:',                   opts: ['NOVO ENSINO MÉDIO'] },
+    { id: 'turma',  label: 'Turma:',                            opts: ['1ª SERIE A INTEGRAL 9H ANUAL', '1ª SERIE B INTEGRAL 9H ANUAL', '2ª SERIE A INTEGRAL 9H ANUAL'] }
+  ];
+  var MUNICIPIO = 'ADAMANTINA'; // dado fixo exibido nos dados da escola
+  var PERFIL = 'GOE';
+
+  var DISC = {
+    ART:  ['ARTE', 'Camila Duarte', '#2e9e83'],
+    BIO:  ['BIOLOGIA', 'Renato Pacheco', '#8e44ad'],
+    EF:   ['EDUCAÇÃO FINANCEIRA', 'Marcos Tavares', '#e67e22'],
+    EDF:  ['ED. FISICA', 'Paulo Henrique Lima', '#2980b9'],
+    ELE:  ['ELE', 'Fernanda Ribeiro', '#16a085'],
+    EMA:  ['ESPORTE MUSICA ARTE', 'Juliana Moreira', '#c0392b'],
+    FIL:  ['FILOSOFIA', 'Antônio Cardoso', '#8e6b00'],
+    FIS:  ['FISICA', 'Luciana Prado', '#3f51b5'],
+    GEO:  ['GEOGRAFIA', 'Sérgio Almeida', '#d35400'],
+    HIS:  ['HISTORIA', 'Patrícia Nunes', '#27ae60'],
+    LP:   ['LING. PORTUGUESA', 'Helena Barbosa', '#c2185b'],
+    MAT:  ['MATEMATICA', 'Rogério Fonseca', '#1565c0'],
+    OELP: ['ORIENTAÇÃO DE ESTUDO - LINGUA PORTUGUESA', 'Helena Barbosa', '#00838f'],
+    OEMAT:['ORIENTAÇÃO DE ESTUDO - MATEMÁTICA', 'Rogério Fonseca', '#6d4c41'],
+    PE:   ['PRATICAS EXPERIMENTAIS', 'Daniela Moura', '#689f38'],
+    PV:   ['PROJETO DE VIDA', 'Beatriz Carvalho', '#ad1457'],
+    QUI:  ['QUIMICA', 'Eduardo Santos', '#5e35b1'],
+    RL:   ['REDAÇÃO E LEITURA', 'Vanessa Teixeira', '#ef6c00'],
+    ROB:  ['ROBOTICA', 'Thiago Menezes', '#455a64']
+  };
+  var DISC_ORDER = ['ART','BIO','EF','EDF','ELE','EMA','FIL','FIS','GEO','HIS','LP','MAT','OELP','OEMAT','PE','PV','QUI','RL','ROB'];
+
+  // Linhas 0..9 (índice 3 = intervalo). Colunas: Seg..Sex (Sáb não tem aulas).
+  var SLOTS = [
+    '07:00 - 07:50', '07:50 - 08:40', '08:40 - 09:30', '09:30 - 09:45',
+    '09:45 - 10:35', '10:35 - 11:25', '11:25 - 12:15', '13:10 - 14:00', '14:00 - 14:55', '14:55 - 15:45'
+  ];
+  var INTERVAL = 3;
+  var DAYS = 5;
+  var URANIA_TEMPLATE = [
+    ['OELP', 'QUI', null,  'LP',  'EMA'],
+    ['OEMAT','QUI', null,  'LP',  'EDF'],
+    ['FIL',  'LP',  'FIS', 'EF',  'LP'],
+    null,
+    ['FIL',  'MAT', 'FIS', 'EMA', 'LP'],
+    ['RL',   'MAT', 'GEO', 'ROB', 'EDF'],
+    ['LP',   'HIS', 'PE',  'ROB', 'BIO'],
+    ['GEO',  'HIS', 'RL',  'ART', 'BIO'],
+    ['PV',   'EF',  'MAT', 'ELE', 'ELE'],
+    [null,   null,  'MAT', 'ELE', null]
+  ];
+
+  /* ---------- Armazenamento (localStorage com fallback em memória) ---------- */
+  var mem = {};
+  function load(k, def) {
+    try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return mem[k] !== undefined ? JSON.parse(mem[k]) : def; }
+  }
+  function store(k, v) {
+    var s = JSON.stringify(v);
+    try { localStorage.setItem(k, s); } catch (e) { mem[k] = s; }
+  }
+
+  function makeKey(f) { return [f.ano, f.rede, f.ure, f.escola, f.tipo, f.turma].join('|'); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function stamp(d) {
+    d = d || new Date();
+    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' - ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+  function emptyCells() {
+    var c = [];
+    for (var r = 0; r < SLOTS.length; r++) c.push(r === INTERVAL ? null : new Array(DAYS).fill(null));
+    return c;
+  }
+  function buildFromUrania() {
+    var cells = clone(URANIA_TEMPLATE), totals = {};
+    cells.forEach(function (row) { if (row) row.forEach(function (d) { if (d) totals[d] = (totals[d] || 0) + 1; }); });
+    return { cells: cells, totals: totals };
+  }
+
+  // Dados de exemplo: a turma do anexo já vem importada e salva
+  var SAMPLE = { ano: '2026', rede: 'ESTADUAL - SE', ure: 'ADAMANTINA', escola: 'HELEN KELLER - 30808', tipo: 'NOVO ENSINO MÉDIO', turma: '1ª SERIE A INTEGRAL 9H ANUAL' };
+  if (!load('gh_saved', null)) {
+    var seed = {}, base = buildFromUrania();
+    base.savedAt = '14/08/2026 - 15:18:53';
+    seed[makeKey(SAMPLE)] = base;
+    store('gh_saved', seed);
+    var log = {}; log[makeKey(SAMPLE)] = true;
+    store('gh_imports', log);
+  }
+
+  /* ---------- Elementos ---------- */
+  var $ = function (id) { return document.getElementById(id); };
+  var form = $('form'), current = null, dirty = false, selected = null, sharedView = false;
+
+  // Menu lateral
+  ['Aluno','Centro de Mídias','Atribuição Online','Diário de Classe','EFAPE','Atribuição Inicial 2026','Financeiro','Gestão DE/SEDUC','Gestão do Sistema','Gestão Escolar','Pedagógico','Recursos Humanos','Serviços Escolares','Vida Escolar','Banco de Talentos','Gestão Tecnologia','Escola + Segura','Central de Atendimento','Gestão Estagiários','Cman','Diário de Classe - EJA Presença Flexível','Educação Especial','Questionários','Atribuição Inicial 2027'].forEach(function (t) {
+    var d = document.createElement('div'); d.className = 'item'; d.innerHTML = '<span>' + t + '</span><span>⌄</span>'; $('sidebar').appendChild(d);
+  });
+
+  // Formulário
+  FILTERS.forEach(function (f) {
+    var row = document.createElement('div'); row.className = 'row'; row.id = 'row_' + f.id;
+    var html = '<label for="f_' + f.id + '">' + f.label + '</label><select id="f_' + f.id + '"><option value="">Selecione</option>';
+    f.opts.forEach(function (o) { html += '<option>' + o + '</option>'; });
+    row.innerHTML = html + '</select><span class="err">Obrigatório</span>';
+    form.appendChild(row);
+    row.querySelector('select').addEventListener('change', function () { row.classList.remove('invalid'); });
+  });
+
+  function getFilters() {
+    var o = {}; FILTERS.forEach(function (f) { o[f.id] = $('f_' + f.id).value; }); return o;
+  }
+  function validate() {
+    var ok = true, first = null;
+    FILTERS.forEach(function (f) {
+      var empty = !$('f_' + f.id).value;
+      $('row_' + f.id).classList.toggle('invalid', empty);
+      if (empty) { ok = false; first = first || $('f_' + f.id); }
+    });
+    if (first) first.focus();
+    return ok;
+  }
+
+  /* ---------- Modal / Toast ---------- */
+  function modal(title, text, buttons) {
+    var ov = document.createElement('div'); ov.className = 'overlay';
+    var m = document.createElement('div'); m.className = 'modal';
+    m.innerHTML = '<h3></h3><p></p><div class="foot"></div>';
+    m.querySelector('h3').textContent = title;
+    m.querySelector('p').textContent = text;
+    function close() { ov.remove(); document.removeEventListener('keydown', onKey); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    buttons.forEach(function (b) {
+      var el = document.createElement('button'); el.className = 'btn ' + (b.cls || 'info'); el.textContent = b.label;
+      el.onclick = function () { close(); if (b.fn) b.fn(); };
+      m.querySelector('.foot').appendChild(el);
+    });
+    ov.appendChild(m); document.body.appendChild(ov); document.addEventListener('keydown', onKey);
+    m.querySelector('.btn').focus();
+  }
+  function confirmBox(title, text, onYes) {
+    modal(title, text, [{ label: 'Sim', cls: 'success', fn: onYes }, { label: 'Não', cls: 'light' }]);
+  }
+  function toast(msg) {
+    var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 3500);
+  }
+
+  /* ---------- Renderização ---------- */
+  function used(id) {
+    var n = 0; current.cells.forEach(function (r) { if (r) r.forEach(function (d) { if (d === id) n++; }); }); return n;
+  }
+  function remaining(id) { return (current.totals[id] || 0) - used(id); }
+
+  function renderBanner() {
+    var b = $('bannerPerfil');
+    b.classList.remove('hidden');
+    b.innerHTML = 'Perfil: ' + PERFIL + '<br>Última Alteração: ' + (current.savedAt || '— (importação ainda não salva)');
+  }
+  function renderSchool() {
+    var f = current.filters;
+    $('school').innerHTML =
+      '<b>Ano Letivo:</b> ' + f.ano + '<br><b>Rede de Ensino:</b> ' + f.rede +
+      '<br><b>Unidade Regional de Ensino (URE):</b> ' + f.ure + '<br><b>Município:</b> ' + MUNICIPIO +
+      '<br><b>Escola:</b> ' + f.escola.replace(/ - \d+$/, '') + '<br><b>Tipo de Ensino:</b> ' + f.tipo + '<br><b>Turma:</b> ' + f.turma;
+  }
+  function renderChips() {
+    var box = $('chips'); box.innerHTML = '';
+    DISC_ORDER.forEach(function (id) {
+      if (!current.totals[id]) return;
+      var left = remaining(id), d = DISC[id];
+      var c = document.createElement('div');
+      c.className = 'chip' + (left <= 0 ? ' zero' : '') + (selected === id ? ' selected' : '');
+      if (left > 0) c.style.background = d[2];
+      c.dataset.id = id;
+      c.innerHTML = '<div class="l1"><span>' + d[0] + '</span><span class="cnt">' + Math.max(left, 0) + '</span></div><div class="prof">' + d[1] + '</div>';
+      box.appendChild(c);
+    });
+  }
+  function renderGrade() {
+    var body = $('gradeBody'); body.innerHTML = '';
+    SLOTS.forEach(function (t, r) {
+      var tr = document.createElement('tr');
+      if (r === INTERVAL) {
+        tr.className = 'interval';
+        tr.innerHTML = '<td class="hora">' + t + '<br>(Intervalo)</td>' + '<td class="off" colspan="6"></td>';
+      } else {
+        var h = '<td class="hora">' + t + '</td>';
+        for (var c = 0; c < DAYS; c++) {
+          var id = current.cells[r][c];
+          if (id) {
+            var d = DISC[id];
+            h += '<td class="slot" data-r="' + r + '" data-c="' + c + '"><div class="gcard" style="background:' + d[2] + '" title="Duplo clique para remover">' + d[0] + '<small>' + d[1] + '</small></div></td>';
+          } else {
+            h += '<td class="slot empty' + (selected ? ' armed' : '') + '" data-r="' + r + '" data-c="' + c + '"></td>';
+          }
+        }
+        tr.innerHTML = h + '<td class="off"></td>';
+      }
+      body.appendChild(tr);
+    });
+  }
+  function renderAll() {
+    renderBanner(); renderSchool(); renderChips(); renderGrade();
+    $('dirty').classList.toggle('hidden', !dirty);
+  }
+  function setDirty(v) { dirty = v; $('dirty').classList.toggle('hidden', !v); }
+  function showResults(show) {
+    $('cardDisc').classList.toggle('hidden', !show);
+    $('cardGrade').classList.toggle('hidden', !show);
+    if (!show) { $('bannerPerfil').classList.add('hidden'); current = null; selected = null; setDirty(false); $('cardGrade').classList.remove('full'); }
+  }
+
+  function encodeShare(data) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  }
+  function decodeShare(value) {
+    return JSON.parse(decodeURIComponent(escape(atob(value))));
+  }
+  function sharedData() {
+    var match = window.location.hash.match(/^#grade=([^&]+)$/);
+    if (!match) return null;
+    try { return decodeShare(match[1]); } catch (e) { return null; }
+  }
+  function enableSharedView(data) {
+    if (!data || !data.filters || !data.cells || !data.totals) return;
+    current = { key: makeKey(data.filters), filters: data.filters, cells: data.cells, totals: data.totals, savedAt: data.savedAt };
+    FILTERS.forEach(function (f) { $('f_' + f.id).value = data.filters[f.id] || ''; });
+    sharedView = true;
+    $('cardFiltro').classList.add('hidden');
+    $('cardDisc').classList.add('hidden');
+    $('btnLimparGrade').classList.add('hidden');
+    $('btnSalvar').classList.add('hidden');
+    showResults(true); renderBanner(); renderSchool(); renderGrade();
+  }
+
+  /* ---------- Ações dos filtros ---------- */
+  function doImport(f, key) {
+    var base = buildFromUrania();
+    current = { key: key, filters: f, cells: base.cells, totals: base.totals, savedAt: null };
+    var log = load('gh_imports', {}); log[key] = true; store('gh_imports', log);
+    selected = null; showResults(true); setDirty(true); renderAll();
+    toast('Importação do Urânia concluída. Clique em Salvar para gravar a grade.');
+  }
+  $('btnImportar').onclick = function () {
+    if (!validate()) return;
+    var f = getFilters(), key = makeKey(f);
+    if (load('gh_imports', {})[key]) {
+      confirmBox('Importar Urânia',
+        'Já existe uma importação para esta turma realizada anteriormente. Deseja importar mesmo assim? Isso poderá sobrescrever a grade salva anteriormente.',
+        function () { doImport(f, key); });
+    } else {
+      doImport(f, key);
+    }
+  };
+  $('btnPesquisar').onclick = function () {
+    if (!validate()) return;
+    var f = getFilters(), key = makeKey(f), saved = load('gh_saved', {})[key];
+    if (!saved) {
+      showResults(false);
+      modal('Pesquisar', 'Os dados dessa turma precisa ser importada e salva.', [{ label: 'OK', cls: 'info' }]);
+      return;
+    }
+    current = { key: key, filters: f, cells: clone(saved.cells), totals: clone(saved.totals), savedAt: saved.savedAt };
+    selected = null; showResults(true); setDirty(false); renderAll();
+  };
+  $('btnLimpar').onclick = function () {
+    FILTERS.forEach(function (f) { $('f_' + f.id).value = ''; $('row_' + f.id).classList.remove('invalid'); });
+    showResults(false);
+  };
+
+  /* ---------- Interações da grade ---------- */
+  $('chips').addEventListener('click', function (e) {
+    if (sharedView) return;
+    var c = e.target.closest('.chip'); if (!c) return;
+    var id = c.dataset.id;
+    if (remaining(id) <= 0) return;
+    selected = selected === id ? null : id;
+    renderChips(); renderGrade();
+  });
+  $('gradeBody').addEventListener('click', function (e) {
+    if (sharedView) return;
+    var td = e.target.closest('td.slot.empty'); if (!td || !selected) return;
+    current.cells[+td.dataset.r][+td.dataset.c] = selected;
+    if (remaining(selected) <= 0) selected = null;
+    setDirty(true); renderChips(); renderGrade();
+  });
+  $('gradeBody').addEventListener('dblclick', function (e) {
+    if (sharedView) return;
+    var td = e.target.closest('td.slot'); if (!td || !td.querySelector('.gcard')) return;
+    current.cells[+td.dataset.r][+td.dataset.c] = null;
+    setDirty(true); renderChips(); renderGrade();
+  });
+
+  $('btnLimparGrade').onclick = function () {
+    confirmBox('Limpar Grade Horária',
+      'Todas as disciplinas já associadas serão removidas, porém a grade horária somente será salva, após clicar no botão salvar. Deseja Prosseguir?',
+      function () { current.cells = emptyCells(); selected = null; setDirty(true); renderChips(); renderGrade(); });
+  };
+  $('btnSalvar').onclick = function () {
+    var all = load('gh_saved', {});
+    current.savedAt = stamp();
+    all[current.key] = { cells: clone(current.cells), totals: clone(current.totals), savedAt: current.savedAt };
+    store('gh_saved', all);
+    setDirty(false); renderBanner();
+    toast('Grade horária salva com sucesso.');
+  };
+  $('btnCompartilhar').onclick = function () {
+    var data = { filters: current.filters, cells: current.cells, totals: current.totals, savedAt: current.savedAt };
+    var url = window.location.href.split('#')[0] + '#grade=' + encodeShare(data);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(function () { toast('Link de compartilhamento copiado.'); }, function () { window.prompt('Copie o link para compartilhar:', url); });
+    } else {
+      window.prompt('Copie o link para compartilhar:', url);
+    }
+  };
+
+  /* ---------- Impressão / exportação / expandir ---------- */
+  $('btnPrint').onclick = function () { window.print(); };
+  $('btnPdf').onclick = function () { toast('Na janela de impressão, escolha "Salvar como PDF".'); setTimeout(function () { window.print(); }, 600); };
+  $('btnExcel').onclick = function () {
+    var f = current.filters, t = '<table border="1">';
+    t += '<tr><td colspan="7"><b>Turma:</b> ' + f.turma + ' | ' + f.escola + ' | Ano Letivo ' + f.ano + '</td></tr><tr><th>Horário</th><th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sab</th></tr>';
+    SLOTS.forEach(function (s, r) {
+      t += '<tr><td>' + s + (r === INTERVAL ? ' (Intervalo)' : '') + '</td>';
+      for (var c = 0; c < DAYS; c++) {
+        var id = r === INTERVAL ? null : current.cells[r][c];
+        t += '<td>' + (id ? DISC[id][0] + ' - ' + DISC[id][1] : '') + '</td>';
+      }
+      t += '<td></td></tr>';
+    });
+    var blob = new Blob(['\ufeff<html><head><meta charset="UTF-8"></head><body>' + t + '</table></body></html>'], { type: 'application/vnd.ms-excel' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'grade_horaria.xls';
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  $('btnExpand').onclick = function () { $('cardGrade').classList.toggle('full'); };
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('cardGrade').classList.remove('full'); });
+  enableSharedView(sharedData());
+})();
+</script>
+</body>
+</html>
