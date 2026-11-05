@@ -85,6 +85,29 @@
   .modal p { margin: 0; padding: 16px; font-size: 13px; line-height: 1.5; }
   .modal .foot { padding: 10px 16px; border-top: 1px solid #e5e5e5; display: flex; justify-content: flex-end; gap: 6px; }
   .toast { position: fixed; right: 20px; bottom: 20px; background: #2e9e5b; color: #fff; padding: 10px 16px; border-radius: 4px; font-size: 12px; z-index: 200; box-shadow: 0 3px 10px rgba(0,0,0,.3); }
+  .history-overlay { position: fixed; inset: 0; z-index: 300; overflow: auto; background: #fff; }
+  .history-titlebar { display: flex; justify-content: space-between; align-items: center; padding: 8px 20px; background: #4a9bd0; color: #fff; }
+  .history-titlebar h2 { margin: 0; font-size: 24px; }
+  .history-titlebar button { border: 0; background: transparent; color: #28658c; font-size: 22px; cursor: pointer; }
+  .history-content { padding: 12px 14px 18px; }
+  .history-controls { display: flex; justify-content: space-between; align-items: center; margin: 42px 0 22px; }
+  .history-controls label { display: flex; align-items: center; gap: 6px; }
+  .history-controls select, .history-controls input { height: 28px; border: 1px solid #ccc; border-radius: 3px; padding: 4px 8px; }
+  .history-controls input { width: 150px; }
+  .history-table-wrap { overflow-x: auto; }
+  table.history-table { width: 100%; min-width: 1050px; border-collapse: collapse; font-size: 11px; text-align: center; }
+  .history-table th { background: #4a9bd0; color: #fff; border: 1px solid #fff; padding: 7px 5px; }
+  .history-table td { border: 1px solid #d2e0eb; padding: 7px 5px; background: #e2effa; }
+  .history-table th[rowspan="2"] { vertical-align: middle; }
+  .history-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; }
+  .history-pagination { display: flex; gap: 4px; }
+  .history-pagination .btn { border-color: #ccc; background: #fff; color: #333; }
+  .history-pagination .btn.current { background: #4a9bd0; color: #fff; border-color: #4a9bd0; }
+  .history-back { display: flex; justify-content: flex-end; padding: 12px 14px; border-top: 1px solid #ddd; }
+  .history-back .btn { background: #4a9bd0; }
+  .slot.drop-target { outline: 2px dashed #1f5f99; outline-offset: -3px; background: #cfe6fb !important; }
+  .gcard[draggable="true"] { cursor: grab; }
+  .gcard[draggable="true"]:active { cursor: grabbing; }
 
   @media print {
     .topbar, .sidebar, .crumb, h1, #cardFiltro, #cardDisc, .toolbar .grp, .actions { display: none !important; }
@@ -105,9 +128,9 @@
     <symbol id="i-excel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></symbol>
     <symbol id="i-pdf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></symbol>
     <symbol id="i-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
-    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></symbol>
     <symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
     <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><polyline points="3 3 3 8 8 8"/><polyline points="12 7 12 12 16 14"/></symbol>
   </defs>
 </svg>
 
@@ -148,6 +171,7 @@
       <div class="toolbar">
         <div class="grp"><button class="btn info sq" id="btnExpand" title="Expandir a tela"><svg><use href="#i-expand"/></svg></button></div>
         <div class="grp">
+          <button class="btn info" id="btnHistorico"><svg><use href="#i-history"/></svg>Histórico Grade Horária</button>
           <button class="btn info" id="btnPrint"><svg><use href="#i-print"/></svg>Imprimir</button>
           <button class="btn info" id="btnExcel"><svg><use href="#i-excel"/></svg>Gerar Excel</button>
           <button class="btn info" id="btnPdf"><svg><use href="#i-pdf"/></svg>Gerar PDF</button>
@@ -160,7 +184,6 @@
       </table>
       <div class="actions">
         <span class="dirty hidden" id="dirty">Alterações não salvas</span>
-        <button class="btn info" id="btnLimparGrade"><svg><use href="#i-trash"/></svg>Limpar Grade</button>
         <button class="btn info" id="btnSalvar"><svg><use href="#i-save"/></svg>Salvar</button>
       </div>
     </section>
@@ -183,6 +206,12 @@
   ];
   var MUNICIPIO = 'ADAMANTINA'; // dado fixo exibido nos dados da escola
   var PERFIL = 'GOE';
+  var USUARIO = 'OG, ROBERTA TEIXEIRA COUTO';
+  function loginFromName(name) {
+    return name.replace(/^[^,]+,\s*/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
+  }
+  var LOGIN = loginFromName(USUARIO);
 
   var DISC = {
     ART:  ['ARTE', 'Camila Duarte', '#2e9e83'],
@@ -214,6 +243,7 @@
   ];
   var INTERVAL = 3;
   var DAYS = 5;
+  var DAY_NAMES = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'];
   var URANIA_TEMPLATE = [
     ['OELP', 'QUI', null,  'LP',  'EMA'],
     ['OEMAT','QUI', null,  'LP',  'EDF'],
@@ -243,11 +273,6 @@
   function stamp(d) {
     d = d || new Date();
     return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' - ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-  }
-  function emptyCells() {
-    var c = [];
-    for (var r = 0; r < SLOTS.length; r++) c.push(r === INTERVAL ? null : new Array(DAYS).fill(null));
-    return c;
   }
   function buildFromUrania() {
     var cells = clone(URANIA_TEMPLATE), totals = {};
@@ -324,6 +349,139 @@
     setTimeout(function () { t.remove(); }, 3500);
   }
 
+  function slotLocation(row, col) {
+    return { day: DAY_NAMES[col], time: SLOTS[row] };
+  }
+  function historyLogin(row) {
+    return row.login && row.login !== '—' ? row.login : loginFromName(row.user || USUARIO);
+  }
+  function recordHistory(id, from, to) {
+    var all = load('gh_history', {}), rows = all[current.key] || [], d = DISC[id];
+    var changedAt = new Date();
+    var record = {
+      discipline: d[0], professor: d[1],
+      from: from ? slotLocation(from.r, from.c) : null,
+      to: to ? slotLocation(to.r, to.c) : null,
+      dateTime: stamp(changedAt), changedAt: changedAt.toISOString(),
+      login: LOGIN, user: USUARIO, profile: PERFIL
+    };
+    if (!from && to) {
+      var removalIndex = findRecentRemoval(rows, record);
+      if (removalIndex !== -1) {
+        record.from = rows[removalIndex].from;
+        rows.splice(removalIndex, 1);
+      }
+    }
+    rows.unshift(record);
+    all[current.key] = rows;
+    store('gh_history', all);
+  }
+  function findRecentRemoval(rows, addition) {
+    var additionTime = Date.parse(addition.changedAt), closestIndex = -1, closestDifference = Infinity;
+    rows.forEach(function (row, index) {
+      if (row.discipline !== addition.discipline || row.professor !== addition.professor ||
+          !row.from || row.to || row.user !== addition.user || row.profile !== addition.profile) return;
+      var removalTime = Date.parse(row.changedAt), difference = additionTime - removalTime;
+      if (Number.isFinite(removalTime) && difference >= 0 && difference <= 5 * 60 * 1000 && difference < closestDifference) {
+        closestIndex = index;
+        closestDifference = difference;
+      }
+    });
+    return closestIndex;
+  }
+  function pairRecentHistory(rows) {
+    var changed = false;
+    rows.forEach(function (addition, index) {
+      if (addition.from || !addition.to) return;
+      var removalIndex = findRecentRemoval(rows.slice(index + 1), addition);
+      if (removalIndex === -1) return;
+      removalIndex += index + 1;
+      addition.from = rows[removalIndex].from;
+      rows.splice(removalIndex, 1);
+      changed = true;
+    });
+    return changed;
+  }
+  function openHistory() {
+    var overlay = document.createElement('div');
+    overlay.className = 'history-overlay';
+    overlay.innerHTML =
+      '<header class="history-titlebar"><h2>Visualizar Histórico</h2><button type="button" aria-label="Fechar">×</button></header>' +
+      '<div class="history-content">' +
+        '<div class="history-controls"><label>Mostrar <select aria-label="Quantidade de registros"><option>10</option><option>25</option><option>50</option></select> registros</label>' +
+          '<label>Filtro <input type="search" aria-label="Filtrar histórico"></label></div>' +
+        '<div class="history-table-wrap"><table class="history-table"><thead>' +
+          '<tr><th rowspan="2">Disciplina</th><th rowspan="2">Professor(a)</th><th colspan="2">De</th><th colspan="2">Para</th>' +
+          '<th rowspan="2">Data e Hora</th><th rowspan="2">Login</th><th rowspan="2">Nome do Usuário</th><th rowspan="2">Perfil</th></tr>' +
+          '<tr><th>Dia</th><th>Horário</th><th>Dia</th><th>Horário</th></tr>' +
+        '</thead><tbody></tbody></table></div>' +
+        '<div class="history-footer"><span class="history-count"></span><div class="history-pagination"></div></div>' +
+      '</div><div class="history-back"><button type="button" class="btn">← Voltar</button></div>';
+    var body = overlay.querySelector('tbody');
+    var filter = overlay.querySelector('input[type="search"]');
+    var pageSize = overlay.querySelector('select');
+    var count = overlay.querySelector('.history-count');
+    var pagination = overlay.querySelector('.history-pagination');
+    var page = 0;
+    function close() {
+      overlay.remove();
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    function cell(tr, value) {
+      var td = document.createElement('td');
+      td.textContent = value || '—';
+      tr.appendChild(td);
+    }
+    function draw() {
+      var all = load('gh_history', {}), rows = all[current.key] || [];
+      if (pairRecentHistory(rows)) {
+        all[current.key] = rows;
+        store('gh_history', all);
+      }
+      var query = filter.value.trim().toLocaleLowerCase('pt-BR');
+      var filtered = rows.filter(function (row) {
+        return [row.discipline, row.professor, row.from && row.from.day, row.from && row.from.time,
+          row.to && row.to.day, row.to && row.to.time, row.dateTime, historyLogin(row), row.user, row.profile]
+          .join(' ').toLocaleLowerCase('pt-BR').indexOf(query) !== -1;
+      });
+      var size = Number(pageSize.value), totalPages = Math.max(1, Math.ceil(filtered.length / size));
+      page = Math.min(page, totalPages - 1);
+      var start = page * size, visible = filtered.slice(start, start + size);
+      body.innerHTML = '';
+      visible.forEach(function (row) {
+        var tr = document.createElement('tr');
+        cell(tr, row.discipline); cell(tr, row.professor);
+        cell(tr, row.from && row.from.day); cell(tr, row.from && row.from.time);
+        cell(tr, row.to && row.to.day); cell(tr, row.to && row.to.time);
+        cell(tr, row.dateTime); cell(tr, historyLogin(row)); cell(tr, row.user); cell(tr, row.profile);
+        body.appendChild(tr);
+      });
+      count.textContent = filtered.length ? 'Registros ' + (start + 1) + ' a ' + (start + visible.length) + ' de ' + filtered.length : 'Registros 0 a 0 de 0';
+      pagination.innerHTML = '';
+      var previous = document.createElement('button');
+      previous.type = 'button'; previous.className = 'btn'; previous.textContent = 'Anterior'; previous.disabled = page === 0;
+      previous.onclick = function () { page--; draw(); };
+      pagination.appendChild(previous);
+      var currentPage = document.createElement('button');
+      currentPage.type = 'button'; currentPage.className = 'btn current'; currentPage.textContent = String(page + 1);
+      currentPage.disabled = true;
+      pagination.appendChild(currentPage);
+      var next = document.createElement('button');
+      next.type = 'button'; next.className = 'btn'; next.textContent = 'Seguinte'; next.disabled = page >= totalPages - 1;
+      next.onclick = function () { page++; draw(); };
+      pagination.appendChild(next);
+    }
+    filter.addEventListener('input', function () { page = 0; draw(); });
+    pageSize.addEventListener('change', function () { page = 0; draw(); });
+    overlay.querySelector('.history-titlebar button').onclick = close;
+    overlay.querySelector('.history-back button').onclick = close;
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    document.body.appendChild(overlay);
+    document.addEventListener('keydown', onKey);
+    draw();
+  }
+
   /* ---------- Renderização ---------- */
   function used(id) {
     var n = 0; current.cells.forEach(function (r) { if (r) r.forEach(function (d) { if (d === id) n++; }); }); return n;
@@ -368,7 +526,7 @@
           var id = current.cells[r][c];
           if (id) {
             var d = DISC[id];
-            h += '<td class="slot" data-r="' + r + '" data-c="' + c + '"><div class="gcard" style="background:' + d[2] + '" title="Duplo clique para remover">' + d[0] + '<small>' + d[1] + '</small></div></td>';
+            h += '<td class="slot" data-r="' + r + '" data-c="' + c + '"><div class="gcard" draggable="true" style="background:' + d[2] + '" title="Arraste para mover; duplo clique para remover">' + d[0] + '<small>' + d[1] + '</small></div></td>';
           } else {
             h += '<td class="slot empty' + (selected ? ' armed' : '') + '" data-r="' + r + '" data-c="' + c + '"></td>';
           }
@@ -407,7 +565,7 @@
     sharedView = true;
     $('cardFiltro').classList.add('hidden');
     $('cardDisc').classList.add('hidden');
-    $('btnLimparGrade').classList.add('hidden');
+    $('btnHistorico').classList.add('hidden');
     $('btnSalvar').classList.add('hidden');
     showResults(true); renderBanner(); renderSchool(); renderGrade();
   }
@@ -459,6 +617,8 @@
   $('gradeBody').addEventListener('click', function (e) {
     if (sharedView) return;
     var td = e.target.closest('td.slot.empty'); if (!td || !selected) return;
+    var to = { r: +td.dataset.r, c: +td.dataset.c };
+    recordHistory(selected, null, to);
     current.cells[+td.dataset.r][+td.dataset.c] = selected;
     if (remaining(selected) <= 0) selected = null;
     setDirty(true); renderChips(); renderGrade();
@@ -466,15 +626,49 @@
   $('gradeBody').addEventListener('dblclick', function (e) {
     if (sharedView) return;
     var td = e.target.closest('td.slot'); if (!td || !td.querySelector('.gcard')) return;
-    current.cells[+td.dataset.r][+td.dataset.c] = null;
+    var row = +td.dataset.r, col = +td.dataset.c, id = current.cells[row][col];
+    recordHistory(id, { r: row, c: col }, null);
+    current.cells[row][col] = null;
     setDirty(true); renderChips(); renderGrade();
   });
 
-  $('btnLimparGrade').onclick = function () {
-    confirmBox('Limpar Grade Horária',
-      'Todas as disciplinas já associadas serão removidas, porém a grade horária somente será salva, após clicar no botão salvar. Deseja Prosseguir?',
-      function () { current.cells = emptyCells(); selected = null; setDirty(true); renderChips(); renderGrade(); });
-  };
+  var dragSource = null;
+  $('gradeBody').addEventListener('dragstart', function (e) {
+    var card = e.target.closest('.gcard');
+    if (!card || sharedView) { e.preventDefault(); return; }
+    var td = card.closest('td.slot');
+    dragSource = { r: +td.dataset.r, c: +td.dataset.c };
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'grade-card');
+  });
+  $('gradeBody').addEventListener('dragover', function (e) {
+    var td = e.target.closest('td.slot.empty');
+    if (!td || !dragSource || sharedView) return;
+    e.preventDefault();
+    td.classList.add('drop-target');
+  });
+  $('gradeBody').addEventListener('dragleave', function (e) {
+    var td = e.target.closest('td.slot');
+    if (td && !td.contains(e.relatedTarget)) td.classList.remove('drop-target');
+  });
+  $('gradeBody').addEventListener('drop', function (e) {
+    var td = e.target.closest('td.slot.empty');
+    if (!td || !dragSource || sharedView) return;
+    e.preventDefault();
+    var from = dragSource, to = { r: +td.dataset.r, c: +td.dataset.c };
+    var id = current.cells[from.r][from.c];
+    if (!id) return;
+    recordHistory(id, from, to);
+    current.cells[from.r][from.c] = null;
+    current.cells[to.r][to.c] = id;
+    dragSource = null; selected = null;
+    setDirty(true); renderChips(); renderGrade();
+  });
+  $('gradeBody').addEventListener('dragend', function () {
+    dragSource = null;
+    Array.prototype.forEach.call($('gradeBody').querySelectorAll('.drop-target'), function (td) { td.classList.remove('drop-target'); });
+  });
+  $('btnHistorico').onclick = openHistory;
   $('btnSalvar').onclick = function () {
     var all = load('gh_saved', {});
     current.savedAt = stamp();
